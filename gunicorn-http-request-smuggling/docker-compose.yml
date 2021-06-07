@@ -1,0 +1,33 @@
+version: "3.5"
+services:
+  reqsmuggling_wsgi_python:
+    build:
+      context: python
+      dockerfile: Dockerfile
+    container_name: reqsmuggling_wsgi_python
+    restart: unless-stopped
+    ports:
+      - "6565:6565"
+    expose:
+      - "6565"
+    networks:
+      - reqsmuggling
+    volumes:
+      - ./python/app/:/app
+
+  reqsmuggling_haproxy:
+    image: eeacms/haproxy:latest
+    container_name: reqsmuggling_haproxy
+    ports:
+      - "80:1080"
+      - "1936:1936"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./haproxy/conf.d/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    networks:
+      - reqsmuggling
+    restart: unless-stopped
+
+networks:
+  reqsmuggling:
+    driver: bridge

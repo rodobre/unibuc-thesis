@@ -1,0 +1,39 @@
+version: "2"
+services:
+  php:
+    image: jguyomard/laravel-php:latest
+    build:
+      context: laravel-php
+      dockerfile: Dockerfile
+    container_name: php
+    volumes:
+      - ./:/var/www/
+      - ./.composer/:/.composer/
+    environment:
+      - "DB_HOST=demo_mysql"
+      - "DB_DATABASE=homestead"
+      - "DB_USERNAME=homestead"
+      - "DB_PASSWORD=homestead"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6379"
+
+  demo_nginx:
+    image: jguyomard/laravel-nginx:latest
+    container_name: demo_nginx
+    volumes_from:
+      - php
+    ports:
+      - 9191:80
+
+  demo_mysql:
+    image: mysql:5.7
+    container_name: demo_mysql
+    environment:
+      - "MYSQL_ROOT_PASSWORD=secret"
+      - "MYSQL_DATABASE=homestead"
+      - "MYSQL_USER=homestead"
+      - "MYSQL_PASSWORD=homestead"
+
+  demo_redis:
+    image: redis:4.0-alpine
+    command: redis-server --appendonly yes
